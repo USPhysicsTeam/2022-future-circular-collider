@@ -18,8 +18,19 @@ enum Opt {
     Disk,
 }
 
+#[cfg(windows)]
+fn terminal_setup() {
+    use colored;
+    colored::control::set_virtual_terminal(true);
+}
+
+#[cfg(unix)]
+fn terminal_setup() {}
+
 fn main() -> Result<(), rustyline::error::ReadlineError> {
     let opt = Opt::from_args();
+
+    terminal_setup();
 
     match opt {
         Opt::Wall => part::wall::run(),
