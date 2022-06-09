@@ -1,9 +1,9 @@
 name: "rust"
 on: "push"
 jobs:
-  main:
-    name: "windows"
-    runs-on: "windows-latest"
+  build:
+    name: "build"
+    runs-on: ["windows-latest", "macos-latest"]
     steps:
       - name: "checkout"
         uses: "actions/checkout@v3"
@@ -12,11 +12,33 @@ jobs:
         with:
           command: "build"
           args: "--release --manifest-path ./cli/Cargo.toml"
-      - name: "ls"
-        run: "ls cli/target/release"
+      - name: "upload"
+        uses: "actions/upload-artifact@v3"
+        with:
+          name: "release-${{ runner.os }}"
+          path: "cli/target/release/"
+  release:
+    name: "release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "download-macos"
+        uses: "actions/download-artifact@v3"
+        with:
+          name: "release-macOS"
+          path: "macos"
+      - name: "download-windows"
+        uses: "actions/download-artifact@v3"
+        with:
+          name: "release-windows"
+          path: "windows"
+      - name: "rename-executables"
+        run: |
+          mkdir -p 'release'
+          mv 'macos/collision-black-box' 'release/collision-black-box-macos'
+          mv 'windows/collision-black-box.exe' 'release/collision-black-box-windows.exe'
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
           repo_token: "${{ github.token }}"
           automatic_release_tag: "latest"
-          files: "target/release/*.exe"
+          files: "release/*"
