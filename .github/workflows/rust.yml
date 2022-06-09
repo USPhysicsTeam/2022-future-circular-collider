@@ -45,7 +45,7 @@ jobs:
           mkdir -p 'release'
           mv 'macos/collision-black-box' 'release/collision-black-box-macos'
           mv 'windows/collision-black-box.exe' 'release/collision-black-box-windows.exe'
-          mv 'linux/collision-black-box.exe' 'release/collision-black-box-linux'
+          mv 'linux/collision-black-box' 'release/collision-black-box-linux'
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
