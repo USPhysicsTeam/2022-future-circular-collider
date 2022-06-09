@@ -14,8 +14,8 @@ jobs:
           args: "--manifest-path ./cli/Cargo.toml"
       - name: "ls"
         run: |
-          ls -l
-          ls -l cli
+          ls -l cli/target
+          ls -l cli/target/*
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
