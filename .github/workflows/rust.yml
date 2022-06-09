@@ -13,7 +13,7 @@ jobs:
           command: "build"
           args: "--release --manifest-path ./cli/Cargo.toml"
       - name: "ls"
-        run: "dir /s"
+        run: "ls target/release"
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
