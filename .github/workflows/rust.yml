@@ -11,11 +11,10 @@ jobs:
         uses: "actions-rs/cargo@v1.0.1"
         with:
           command: "build"
-          args: "--manifest-path ./cli/Cargo.toml"
+          args: "--release --manifest-path ./cli/Cargo.toml"
       - name: "ls"
         run: |
-          ls -l cli/target
-          ls -l cli/target/*
+          ls -l cli/target/release
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
