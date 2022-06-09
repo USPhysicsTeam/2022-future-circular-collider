@@ -3,7 +3,7 @@ on: "push"
 jobs:
   main:
     name: "windows"
-    runs-on: "ubuntu-latest"
+    runs-on: "windows-latest"
     steps:
       - name: "checkout"
         uses: "actions/checkout@v3"
@@ -12,12 +12,9 @@ jobs:
         with:
           command: "build"
           args: "--release --manifest-path ./cli/Cargo.toml"
-      - name: "ls"
-        run: |
-          ls -l cli/target/release
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
           repo_token: "${{ github.token }}"
           automatic_release_tag: "latest"
-          files: ""
+          files: "target/release/*.exe"

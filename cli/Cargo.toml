@@ -11,9 +11,3 @@ rand_distr = '0.4.3'
 rand = '0.8.5'
 colored = '2.0.0'
 structopt = '0.3.26'
-
-[profile.release]
-strip = true
-opt-level = 'z'
-lto = true
-codegen-units = 1
