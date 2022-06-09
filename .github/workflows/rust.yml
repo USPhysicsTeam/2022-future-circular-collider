@@ -11,6 +11,7 @@ jobs:
         uses: "actions-rs/cargo@v1.0.1"
         with:
           command: "build"
+          args: "--manifest-path ./cli/Cargo.toml"
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
