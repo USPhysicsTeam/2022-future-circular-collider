@@ -10,16 +10,27 @@ jobs:
     steps:
       - name: "checkout"
         uses: "actions/checkout@v3"
+
       - name: "cargo"
         uses: "actions-rs/cargo@v1.0.1"
         with:
           command: "build"
           args: "--release --manifest-path ./cli/Cargo.toml"
-      - name: "upload"
+
+      - name: "upload-windows"
+        if: 'runner.os == "Windows"'
         uses: "actions/upload-artifact@v3"
         with:
           name: "release-${{ runner.os }}"
-          path: "cli/target/release/"
+          path: "cli/target/release/collision-black-box.exe"
+
+      - name: "upload-unix"
+        if: 'runner.os != "Windows"'
+        uses: "actions/upload-artifact@v3"
+        with:
+          name: "release-${{ runner.os }}"
+          path: "cli/target/release/collision-black-box"
+
   release:
     name: "release"
     runs-on: "ubuntu-latest"
