@@ -7,4 +7,4 @@ jobs:
       - uses: "kolpav/purge-artifacts-action@v1"
         with:
           token: "${{ github.token }}"
-          expire-in: 0
+          expire-in: "0ms"
