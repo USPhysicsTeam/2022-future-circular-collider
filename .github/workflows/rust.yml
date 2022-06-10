@@ -2,11 +2,13 @@ name: "rust"
 on: "push"
 jobs:
   build:
-    name: "build"
-    strategy:
-      matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-    runs-on: "${{ matrix.os }}"
+    name:
+      "build"
+      #strategy:
+      #  matrix:
+      #    os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+      #runs-on: "${{ matrix.os }}"
+    runs-on: "windows-latest"
     steps:
       - name: "checkout"
         uses: "actions/checkout@v3"
@@ -17,49 +19,56 @@ jobs:
           command: "build"
           args: "--release --manifest-path ./cli/Cargo.toml"
 
-      - name: "upload-windows"
-        if: "runner.os == 'Windows'"
-        uses: "actions/upload-artifact@v3"
-        with:
-          name: "release-${{ runner.os }}"
-          path: "cli/target/release/collision-black-box.exe"
-
-      - name: "upload-unix"
-        if: "runner.os != 'Windows'"
-        uses: "actions/upload-artifact@v3"
-        with:
-          name: "release-${{ runner.os }}"
-          path: "cli/target/release/collision-black-box"
-
-  release:
-    name: "release"
-    runs-on: "ubuntu-latest"
-    needs: "build"
-    steps:
-      - name: "download-macos"
-        uses: "actions/download-artifact@v3"
-        with:
-          name: "release-macOS"
-          path: "macos"
-      - name: "download-windows"
-        uses: "actions/download-artifact@v3"
-        with:
-          name: "release-Windows"
-          path: "windows"
-      - name: "download-linux"
-        uses: "actions/download-artifact@v3"
-        with:
-          name: "release-Linux"
-          path: "linux"
-      - name: "rename-executables"
-        run: |
-          mkdir -p 'release'
-          mv 'macos/collision-black-box' 'release/collision-black-box-macos'
-          mv 'windows/collision-black-box.exe' 'release/collision-black-box-windows.exe'
-          mv 'linux/collision-black-box' 'release/collision-black-box-linux'
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
           repo_token: "${{ github.token }}"
           automatic_release_tag: "latest"
-          files: "release/*"
+          files: "cli/target/release/collision-black-box.exe"
+
+          #      - name: "upload-windows"
+          #        if: "runner.os == 'Windows'"
+          #        uses: "actions/upload-artifact@v3"
+          #        with:
+          #          name: "release-${{ runner.os }}"
+          #          path: "cli/target/release/collision-black-box.exe"
+          #
+          #      - name: "upload-unix"
+          #        if: "runner.os != 'Windows'"
+          #        uses: "actions/upload-artifact@v3"
+          #        with:
+          #          name: "release-${{ runner.os }}"
+          #          path: "cli/target/release/collision-black-box"
+          #
+          #  release:
+          #    name: "release"
+          #    runs-on: "ubuntu-latest"
+          #    needs: "build"
+          #    steps:
+          #      - name: "download-macos"
+          #        uses: "actions/download-artifact@v3"
+          #        with:
+          #          name: "release-macOS"
+          #          path: "macos"
+          #      - name: "download-windows"
+          #        uses: "actions/download-artifact@v3"
+          #        with:
+          #          name: "release-Windows"
+          #          path: "windows"
+          #      - name: "download-linux"
+          #        uses: "actions/download-artifact@v3"
+          #        with:
+          #          name: "release-Linux"
+          #          path: "linux"
+          #      - name: "rename-executables"
+          #        run: |
+          #          mkdir -p 'release'
+          #          mv 'macos/collision-black-box' 'release/collision-black-box-macos'
+          #          mv 'windows/collision-black-box.exe' 'release/collision-black-box-windows.exe'
+          #          mv 'linux/collision-black-box' 'release/collision-black-box-linux'
+          #      - name: "release"
+          #        uses: "marvinpinto/action-automatic-releases@v1.2.1"
+          #        with:
+          #          repo_token: "${{ github.token }}"
+          #          automatic_release_tag: "latest"
+          #          files: "release/*"
