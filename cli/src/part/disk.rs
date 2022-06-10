@@ -6,8 +6,7 @@ use rustyline;
 const RADIUS_MYSTERY: f64 = 0.145;
 const RADIUS_MYSTERY_ERR: f64 = 0.002;
 
-const MASS_MYSTERY: f64 = 1.414;
-const MASS_MYSTERY_ERR: f64 = 0.018;
+const MASS_MYSTERY: f64 = 1.4142;
 
 const RADIUS_PROBE: f64 = 0.250;
 const RADIUS_PROBE_ERR: f64 = 0.001;
@@ -25,14 +24,12 @@ const Θ_MAX: f64 = 90.;
 const Θ_ERR: f64 = 0.1;
 
 const DISTANCE: f64 = 2.;
-const DISTANCE_ERR: f64 = 0.1;
 
 const X: f64 = 0.696;
 const Y: f64 = -1.230;
 const POS_ERR: f64 = 0.003;
 
-const PROCESSING: f64 = 0.2;
-const PROCESSING_ERR: f64 = 0.1;
+const PROCESSING: f64 = 4.0;
 
 const V_MIN: f64 = 0.5;
 const V_MAX: f64 = 10.;
@@ -53,16 +50,12 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
 
     let dist_𝑟_probe = rand_distr::Normal::new(RADIUS_PROBE, RADIUS_PROBE_ERR).unwrap();
     let dist_𝑟_mystery = rand_distr::Normal::new(RADIUS_MYSTERY, RADIUS_MYSTERY_ERR).unwrap();
-    let dist_𝑚_mystery = rand_distr::Normal::new(MASS_MYSTERY, MASS_MYSTERY_ERR).unwrap();
 
     let dist_𝑐 =
         rand_distr::Normal::new(COEFFICIENT_RESTITUTION, COEFFICIENT_RESTITUTION_ERR).unwrap();
 
     let dist_x = rand_distr::Normal::new(X, POS_ERR).unwrap();
     let dist_y = rand_distr::Normal::new(Y, POS_ERR).unwrap();
-
-    let dist_processing = rand_distr::Normal::new(PROCESSING, PROCESSING_ERR).unwrap();
-    let dist_d = rand_distr::Normal::new(DISTANCE, DISTANCE_ERR).unwrap();
 
     let mut rng = rand::thread_rng();
 
@@ -105,9 +98,6 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
 
         let 𝑟_probe = dist_𝑟_probe.sample(&mut rng);
         let 𝑟_mystery = dist_𝑟_mystery.sample(&mut rng);
-        let 𝑚_mystery = dist_𝑚_mystery.sample(&mut rng);
-
-        let processing = dist_processing.sample(&mut rng);
 
         let 𝑐 = dist_𝑐.sample(&mut rng);
 
@@ -117,18 +107,20 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
             y: dist_y.sample(&mut rng),
         };
 
-        let 𝑚_total = 𝑚_probe + 𝑚_mystery;
+        let 𝑚_total = 𝑚_probe + MASS_MYSTERY;
         let 𝑟_total = 𝑟_probe + 𝑟_mystery;
 
         let 𝒗̂ = util::Vec2::normal_from_angle(𝜃);
         let 𝒗 = 𝒗̂ * 𝑣;
+
+        println!("{}", "  running…".green());
 
         // impact parameter, anchored at mystery disk center
         let 𝒃 = (𝒙_probe - 𝒙_mystery).project_onto(&𝒗.rot90());
 
         if 𝒃.norm() >= 𝑟_total {
             std::thread::sleep(std::time::Duration::from_secs_f64(
-                dist_d.sample(&mut rng) / 𝑣 + processing,
+                DISTANCE / 𝑣 + PROCESSING,
             ));
             println!("{}\n", "  swing and a miss!".yellow());
             continue;
@@ -137,20 +129,18 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
         let δ𝒙 = 𝒃 - 𝒗̂ * (𝑟_total * 𝑟_total - 𝒃.norm2()).sqrt();
 
         let 𝒗_impact = 𝒗.project_onto(&δ𝒙);
-        let 𝒗_probe = (𝒗 - 𝒗_impact) + 𝒗_impact * ((𝑚_probe - 𝑐 * 𝑚_mystery) / 𝑚_total);
-
-        println!("{}", "  running…".green());
+        let 𝒗_probe = (𝒗 - 𝒗_impact) + 𝒗_impact * ((𝑚_probe - 𝑐 * MASS_MYSTERY) / 𝑚_total);
 
         // wait for ball to collide
         std::thread::sleep(std::time::Duration::from_secs_f64(
-            (𝒙_mystery + δ𝒙).norm() / 𝑣 + processing,
+            (𝒙_mystery + δ𝒙).norm() / 𝑣 + PROCESSING,
         ));
 
         println!(
             "  {}\n  probe speed: {}\n  probe angle: {}\n",
             "you got a hit!".bright_green(),
-            format!("{} m/s", 𝒗_probe.norm()).bold(),
-            format!("{} ° to horizontal", 𝒗_probe.angle().to_degrees()).bold()
+            format!("{:+8.3} m/s", 𝒗_probe.norm()).bold(),
+            format!("{:+8.3} ° to horizontal", 𝒗_probe.angle().to_degrees()).bold()
         );
     }
 

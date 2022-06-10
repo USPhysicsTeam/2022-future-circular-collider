@@ -15,11 +15,8 @@ const FRICTION_COEFFICIENT_ERR: f64 = 0.02;
 const MOMENT_COEFFICIENT: f64 = 0.799;
 const MOMENT_COEFFICIENT_ERR: f64 = 0.002;
 
-const DISTANCE: f64 = 0.5;
-const DISTANCE_ERR: f64 = 0.01;
-
-const PROCESSING: f64 = 0.2;
-const PROCESSING_ERR: f64 = 0.1;
+const WALL_DISTANCE: f64 = 0.5;
+const PROCESSING: f64 = 3.0;
 
 const V_MIN: f64 = 0.5;
 const V_MAX: f64 = 10.;
@@ -32,7 +29,6 @@ const Θ_ERR: f64 = 1.;
 
 const ANGULAR_MIN: f64 = -50.;
 const ANGULAR_MAX: f64 = 50.;
-
 const ANGULAR_ERR_ABS: f64 = 0.2;
 const ANGULAR_ERR_REL: f64 = 0.05;
 
@@ -48,9 +44,6 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
     let dist_c =
         rand_distr::Normal::new(RESTITUTION_COEFFICIENT, RESTITUTION_COEFFICIENT_ERR).unwrap();
     let dist_β = rand_distr::Normal::new(MOMENT_COEFFICIENT, MOMENT_COEFFICIENT_ERR).unwrap();
-
-    let dist_h = rand_distr::Normal::new(DISTANCE, DISTANCE_ERR).unwrap();
-    let dist_processing = rand_distr::Normal::new(PROCESSING, PROCESSING_ERR).unwrap();
 
     let mut rng = rand::thread_rng();
 
@@ -119,15 +112,14 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
 
         // wait for ball to return
         std::thread::sleep(std::time::Duration::from_secs_f64(
-            dist_h.sample(&mut rng) * (1. / vy + 1. / vy_new)
-                + dist_processing.sample(&mut rng).max(0.),
+            WALL_DISTANCE * (1. / vy + 1. / vy_new) + PROCESSING,
         ));
 
         println!(
             "  rebound speed: {}\n  rebound angle: {}\n  angular speed: {}\n",
-            format!("{:<+7.3} m/s", v_new).bold(),
-            format!("{:<+7.3} ° to normal", θ_new).bold(),
-            format!("{:<+7.3} rad/s", ω_new).bold(),
+            format!("{:+7.3} m/s", v_new).bold(),
+            format!("{:+7.3} ° to normal", θ_new).bold(),
+            format!("{:+7.3} rad/s", ω_new).bold(),
         );
     }
 
