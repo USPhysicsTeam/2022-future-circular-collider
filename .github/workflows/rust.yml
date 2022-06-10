@@ -18,14 +18,14 @@ jobs:
           args: "--release --manifest-path ./cli/Cargo.toml"
 
       - name: "upload-windows"
-        if: 'runner.os == "Windows"'
+        if: "runner.os == 'Windows'"
         uses: "actions/upload-artifact@v3"
         with:
           name: "release-${{ runner.os }}"
           path: "cli/target/release/collision-black-box.exe"
 
       - name: "upload-unix"
-        if: 'runner.os != "Windows"'
+        if: "runner.os != 'Windows'"
         uses: "actions/upload-artifact@v3"
         with:
           name: "release-${{ runner.os }}"
