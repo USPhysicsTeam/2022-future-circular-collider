@@ -8,6 +8,11 @@ jobs:
       - name: "checkout"
         uses: "actions/checkout@v3"
 
+      - name: "toolchain"
+        uses: "actions-rs/toolchain@v1.0.6"
+        with:
+          target: "x86_64-unknown-linux-musl"
+
       - name: "cargo"
         uses: "actions-rs/cargo@v1.0.1"
         with:
