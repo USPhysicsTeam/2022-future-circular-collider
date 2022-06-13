@@ -80,7 +80,7 @@ jobs:
           mkdir -p 'release'
           for prog in 'collision-black-box' 'cli-check'; do
             mv "macos/$prog" "release/$prog-macos"
-            mv "windows/$prog.exe" "release/$prog.exe"
+            mv "windows/$prog.exe" "release/$prog-windows.exe"
             mv "linux/$prog" "release/$prog-linux"
           done
 
