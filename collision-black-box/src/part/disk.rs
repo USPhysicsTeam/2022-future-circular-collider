@@ -82,19 +82,19 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
             util::read_float(&mut rl, "launch position (m):            ", S_MIN, S_MAX)?,
         );
 
-        let 𝜃 = perturb_𝜃
-            .perturb(
-                &mut rng,
-                util::read_float(&mut rl, "launch angle (° to horizontal): ", Θ_MIN, Θ_MAX)?,
-            )
-            .to_radians();
-
         let 𝑣 = perturb_𝑣
             .perturb(
                 &mut rng,
                 util::read_float(&mut rl, "launch speed (m/s):             ", V_MIN, V_MAX)?,
             )
             .max(V_MIN / 2.);
+
+        let 𝜃 = perturb_𝜃
+            .perturb(
+                &mut rng,
+                util::read_float(&mut rl, "launch angle (° to horizontal): ", Θ_MIN, Θ_MAX)?,
+            )
+            .to_radians();
 
         let 𝑟_probe = dist_𝑟_probe.sample(&mut rng);
         let 𝑟_mystery = dist_𝑟_mystery.sample(&mut rng);

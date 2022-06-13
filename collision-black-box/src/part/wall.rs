@@ -62,14 +62,6 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
             )
             .max(V_MIN / 2.);
 
-        let θ = perturb_θ
-            .perturb(
-                &mut rng,
-                util::read_float(&mut rl, "launch angle (° to normal): ", Θ_MIN, Θ_MAX)?,
-            )
-            .clamp(0., 90.)
-            .to_radians();
-
         let ω = perturb_ω.perturb(
             &mut rng,
             util::read_float(
@@ -79,6 +71,14 @@ pub fn run() -> Result<(), rustyline::error::ReadlineError> {
                 ANGULAR_MAX,
             )?,
         );
+
+        let θ = perturb_θ
+            .perturb(
+                &mut rng,
+                util::read_float(&mut rl, "launch angle (° to normal): ", Θ_MIN, Θ_MAX)?,
+            )
+            .clamp(0., 90.)
+            .to_radians();
 
         let r = dist_r.sample(&mut rng);
         let c = dist_c.sample(&mut rng);
