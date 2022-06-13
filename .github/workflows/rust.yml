@@ -1,9 +1,31 @@
 name: "rust"
 on: "push"
 jobs:
-  build-linux:
-    name: "build-linux"
-    runs-on: "ubuntu-latest"
+  build:
+    name: "build"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        program: ["collision-black-box", "cli-check"]
+        include:
+          - os: "macos"
+            runner: "macos-latest"
+            target: "x86_64-apple-darwin"
+            suffix: ""
+
+          - os: "linux"
+            runner: "ubuntu-latest"
+            target: "x86_64-unknown-linux-musl"
+            suffix: ""
+
+          - os: "windows"
+            runner: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
+            suffix: ".exe"
+
+    runs-on: "${{ matrix.runner }}"
+
     steps:
       - name: "checkout"
         uses: "actions/checkout@v3"
@@ -12,65 +34,25 @@ jobs:
         uses: "actions-rs/toolchain@v1.0.6"
         with:
           toolchain: "nightly"
-          target: "x86_64-unknown-linux-musl"
+          target: "${{ matrix.target }}"
+          override: true
 
       - name: "cargo"
         uses: "actions-rs/cargo@v1.0.1"
         with:
           command: "build"
-          args: "--release --manifest-path ./cli/Cargo.toml --target x86_64-unknown-linux-musl"
+          args: "--release --manifest-path ./${{ matrix.program }}/Cargo.toml --target ${{ matrix.target }}"
 
       - name: "upload"
         uses: "actions/upload-artifact@v3"
         with:
-          name: "build-linux"
-          path: "cli/target/x86_64-unknown-linux-musl/release/collision-black-box"
-
-  build-windows:
-    name: "build-windows"
-    runs-on: "windows-latest"
-    steps:
-      - name: "checkout"
-        uses: "actions/checkout@v3"
-
-      - name: "cargo"
-        uses: "actions-rs/cargo@v1.0.1"
-        with:
-          command: "build"
-          args: "--release --manifest-path ./cli/Cargo.toml --target x86_64-pc-windows-msvc"
-
-      - name: "upload"
-        uses: "actions/upload-artifact@v3"
-        with:
-          name: "build-windows"
-          path: "cli/target/x86_64-pc-windows-msvc/release/collision-black-box.exe"
-
-  build-macos:
-    name: "build-macos"
-    runs-on: "macos-latest"
-    steps:
-      - name: "checkout"
-        uses: "actions/checkout@v3"
-
-      - name: "cargo"
-        uses: "actions-rs/cargo@v1.0.1"
-        with:
-          command: "build"
-          args: "--release --manifest-path ./cli/Cargo.toml --target x86_64-apple-darwin"
-
-      - name: "upload"
-        uses: "actions/upload-artifact@v3"
-        with:
-          name: "build-macos"
-          path: "cli/target/x86_64-apple-darwin/release/collision-black-box"
+          name: "build-${{ matrix.os }}"
+          path: "${{ matrix.program }}/target/${{ matrix.target }}/release/${{ matrix.program }}${{ matrix.suffix }}"
 
   release:
     name: "release"
     runs-on: "ubuntu-latest"
-    needs:
-      - "build-linux"
-      - "build-macos"
-      - "build-windows"
+    needs: "build"
 
     steps:
       - name: "download-macos"
@@ -94,9 +76,11 @@ jobs:
       - name: "rename-executables"
         run: |
           mkdir -p 'release'
-          mv 'macos/collision-black-box' 'release/collision-black-box-macos'
-          mv 'windows/collision-black-box.exe' 'release/collision-black-box-windows.exe'
-          mv 'linux/collision-black-box' 'release/collision-black-box-linux'
+          for prog in 'collision-black-box' 'cli-check'; do
+            mv "macos/$prog" "release/$prog-macos"
+            mv "windows/$prog.exe" "release/$prog.exe"
+            mv "linux/$prog" "release/$prog-linux"
+          done
 
       - name: "release"
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
