@@ -15,7 +15,7 @@ jobs:
           args: "--release --manifest-path ./cli/Cargo.toml --target x86_64-unknown-linux-musl"
 
       - name: "upload"
-        uses: 'actions/upload-artifact@v3'
+        uses: "actions/upload-artifact@v3"
         with:
           name: "build-linux"
           path: "cli/target/x86_64-unknown-linux-musl/release/collision-black-box"
@@ -34,7 +34,7 @@ jobs:
           args: "--release --manifest-path ./cli/Cargo.toml --target x86_64-pc-windows-msvc"
 
       - name: "upload"
-        uses: 'actions/upload-artifact@v3'
+        uses: "actions/upload-artifact@v3"
         with:
           name: "build-windows"
           path: "cli/target/x86_64-pc-windows-msvc/release/collision-black-box.exe"
@@ -53,7 +53,7 @@ jobs:
           args: "--release --manifest-path ./cli/Cargo.toml --target x86_64-apple-darwin"
 
       - name: "upload"
-        uses: 'actions/upload-artifact@v3'
+        uses: "actions/upload-artifact@v3"
         with:
           name: "build-macos"
           path: "cli/target/x86_64-apple-darwin/release/collision-black-box"
@@ -61,7 +61,11 @@ jobs:
   release:
     name: "release"
     runs-on: "ubuntu-latest"
-    needs: "build"
+    needs:
+      - "build-linux"
+      - "build-macos"
+      - "build-windows"
+
     steps:
       - name: "download-macos"
         uses: "actions/download-artifact@v3"
