@@ -1,6 +1,6 @@
 # The Future Circular Collider
 
-_The Future Circular Collider_ is a simulated lab experiment designed for the 2022 U.S. Physics Team training camp. This repository contains the source code for the (command-line) programs used to run the simulation.
+_The Future Circular Collider_ is a simulated lab experiment authored for the 2022 U.S. Physics Team training camp. This repository contains the source code for the (command-line) programs used to run the simulation.
 
 - [Where do I download the program?](#where-do-i-download-the-program)
   - [Technical details on CPU architecture](#technical-details-on-cpu-architecture)
